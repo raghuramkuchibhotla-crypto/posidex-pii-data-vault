@@ -297,6 +297,8 @@
             <input id="cName" type="text" placeholder="Your name" autocomplete="name">
             <input id="cOrg" type="text" placeholder="Organisation" autocomplete="organization">
             <input id="cEmail" class="wide" type="email" placeholder="Work email address" autocomplete="email" required>
+            <input id="cCompany" type="text" tabindex="-1" autocomplete="off" aria-hidden="true"
+                   style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
             <button class="primary wide" id="cSend" type="button">Send me the summary</button>
           </div>
           <p class="err" id="cErr">Please enter a valid work email address.</p>
@@ -351,20 +353,13 @@
   "use strict";
 
   /* ═══════════════════════════════════════════════════════════
-     GOOGLE FORM CONFIG — paste your six values here.
-     Instructions for finding them are in the handover notes.
-     Until these are filled in, the form falls back to email.
+     LEAD ENDPOINT
+     Points at the Netlify function that talks to Zoho CRM.
+     Credentials live in that function, never in this page.
+     Leave as-is if the page and function are on the same site.
      ═══════════════════════════════════════════════════════════ */
-  var GFORM = {
-    action : 'https://docs.google.com/forms/d/e/PASTE_FORM_ID_HERE/formResponse',
-    email  : 'entry.PASTE_EMAIL_ENTRY_ID',
-    name   : 'entry.PASTE_NAME_ENTRY_ID',
-    org    : 'entry.PASTE_ORG_ENTRY_ID',
-    score  : 'entry.PASTE_SCORE_ENTRY_ID',
-    verdict: 'entry.PASTE_VERDICT_ENTRY_ID',
-    answers: 'entry.PASTE_ANSWERS_ENTRY_ID'
-  };
-  var GFORM_READY = GFORM.action.indexOf('PASTE_') === -1;
+  var LEAD_ENDPOINT = '/api/lead';
+  var FALLBACK_EMAIL = 'raghuram.kuchibhotla@posidex.com';
 
   /* ══ TOKENISER (illustrative) ══ */
   var inp=document.getElementById('inp'),
@@ -534,41 +529,41 @@
     cSend.disabled=true;
     cSend.textContent='Sending…';
 
-    var payload=new FormData();
-    payload.append(GFORM.email,   email);
-    payload.append(GFORM.name,    name || '—');
-    payload.append(GFORM.org,     org  || '—');
-    payload.append(GFORM.score,   score+' / 15');
-    payload.append(GFORM.verdict, finalVerdict);
-    payload.append(GFORM.answers, picked.join('  |  '));
+    var payload = {
+      email:   email,
+      name:    name || '',
+      org:     org  || '',
+      score:   score + ' / 15',
+      verdict: finalVerdict,
+      answers: picked.join('  |  '),
+      hp:      document.getElementById('cCompany').value   // honeypot
+    };
 
     function done(){
       capture.style.display='none';
       thanks.classList.add('show');
     }
 
-    if(!GFORM_READY){
-      // Not configured yet — fall back so no submission is silently lost.
-      window.location.href='mailto:raghuram.kuchibhotla@posidex.com'
+    function fallbackToEmail(){
+      window.location.href='mailto:'+FALLBACK_EMAIL
         +'?subject='+encodeURIComponent('PII exposure check — '+finalVerdict+' ('+score+'/15)')
         +'&body='+encodeURIComponent(
             'Name: '+(name||'—')+'\nOrganisation: '+(org||'—')+'\nEmail: '+email
             +'\n\nScore: '+score+' / 15\nVerdict: '+finalVerdict
             +'\n\n'+picked.join('\n'));
       done();
-      return;
     }
 
-    // Google Forms does not send CORS headers, so the response is opaque
-    // by design. A resolved promise means the request left the browser.
-    fetch(GFORM.action,{method:'POST',mode:'no-cors',body:payload})
-      .then(done)
-      .catch(function(){
-        cSend.disabled=false;
-        cSend.textContent='Send me the summary';
-        cErr.textContent='Could not send just now. Please email raghuram.kuchibhotla@posidex.com instead.';
-        cErr.classList.add('show');
-      });
+    fetch(LEAD_ENDPOINT,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    })
+    .then(function(r){
+      if(r.ok){ done(); }
+      else { fallbackToEmail(); }
+    })
+    .catch(fallbackToEmail);
   });
 
   document.getElementById('cEmail').addEventListener('keydown',function(e){
