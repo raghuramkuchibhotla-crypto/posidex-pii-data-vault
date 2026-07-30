@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>60-Second Exposure Check — Posidex</title>
+<style>
+  :root{
+    --ink:#08090E;
+    --panel:#11131C;
+    --panel-2:#181B26;
+    --line:#232735;
+    --violet:#A62DC9;
+    --violet-lt:#C77BE0;
+    --orange:#EE6C1A;
+    --cyan:#2B9FD4;
+    --green:#3FD09B;
+    --text:#EDEFF5;
+    --muted:#8A90A3;
+    --mono:'SF Mono',ui-monospace,'JetBrains Mono',Menlo,Consolas,monospace;
+    --sans:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ink);color:var(--text);font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden;
+  }
+
+  /* ambient violet glow — the site's signature atmosphere */
+  .glow{
+    position:fixed;top:-30vh;left:50%;transform:translateX(-50%);
+    width:120vw;height:80vh;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse at center, rgba(166,45,201,.20) 0%, rgba(166,45,201,.06) 38%, transparent 68%);
+    filter:blur(30px);
+  }
+
+  .shell{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:0 24px 100px;}
+
+  /* ── nav ── */
+  nav{display:flex;align-items:center;justify-content:space-between;padding:26px 0 0;}
+  .mark{font-size:16px;font-weight:700;letter-spacing:4px;}
+  .rule{display:flex;height:3px;width:70px;border-radius:2px;overflow:hidden;}
+  .rule i{flex:1;}
+
+  /* ── hero ── */
+  header{padding:70px 0 54px;}
+  .eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:2.4px;text-transform:uppercase;
+    color:var(--violet-lt);margin-bottom:20px;
+  }
+  h1{
+    font-size:clamp(38px,7vw,64px);line-height:1.02;font-weight:700;letter-spacing:-2px;
+  }
+  h1 em{font-style:normal;color:var(--muted);}
+  .lede{margin-top:22px;font-size:18px;line-height:1.6;color:var(--muted);max-width:58ch;}
+
+  /* ── three states ── */
+  .states{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:40px;}
+  .st{
+    background:var(--panel);border:1px solid var(--line);border-radius:10px;
+    padding:20px 16px;text-align:center;
+  }
+  .st .ic{font-size:20px;line-height:1;margin-bottom:9px;display:block;}
+  .st .lbl{font-family:var(--mono);font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);}
+  .st.ok .ic{color:var(--green);}
+  .st.bad{border-color:var(--orange);background:linear-gradient(180deg,rgba(238,108,26,.10),transparent);}
+  .st.bad .ic{color:var(--orange);}
+  .st.bad .lbl{color:var(--orange);}
+  .caption{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;letter-spacing:.3px;}
+
+  /* ── comparison ── */
+  .vs{margin-top:28px;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .vrow{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line);}
+  .vrow:last-child{border-bottom:none;}
+  .vrow .old,.vrow .new{padding:17px 20px;font-size:14px;line-height:1.6;}
+  .vrow .old{color:var(--muted);border-right:1px solid var(--line);background:#0C0E15;}
+  .vrow .new{color:#C9CEDA;background:#120B1B;}
+  .vrow b{display:block;font-size:14.5px;margin-bottom:4px;font-weight:700;}
+  .vrow .old b{color:#9AA0B3;}
+  .vrow .new b{color:var(--violet-lt);}
+  .vhead2 .old,.vhead2 .new{font-family:var(--mono);font-size:10.5px;letter-spacing:1.8px;
+                            text-transform:uppercase;padding:12px 20px;}
+  .vhead2 .old{color:var(--muted);}
+  .vhead2 .new{color:var(--violet);}
+
+  /* ── faq ── */
+  .faq{margin-top:26px;border-top:1px solid var(--line);}
+  .qa{border-bottom:1px solid var(--line);padding:20px 0;}
+  .qa h4{font-size:16px;font-weight:700;letter-spacing:-.2px;margin-bottom:8px;color:var(--text);}
+  .qa p{font-size:14.5px;line-height:1.65;color:var(--muted);}
+  .qa p b{color:#C9CEDA;font-weight:700;}
+
+  /* ── final cta ── */
+  .fcta{margin-top:32px;padding:30px 26px;border-radius:14px;
+        background:linear-gradient(155deg,#1B1029 0%,#0B0D14 62%);
+        border:1px solid var(--line);}
+  .fcta h3{font-size:23px;font-weight:700;letter-spacing:-.6px;margin-bottom:10px;}
+  .fcta p{color:var(--muted);font-size:15px;line-height:1.6;margin-bottom:22px;max-width:52ch;}
+
+  @media (max-width:640px){
+    .vrow{grid-template-columns:1fr;}
+    .vrow .old{border-right:none;border-bottom:1px solid var(--line);}
+    .vhead2{display:none;}
+  }
+
+  /* ── rule 6 ── */
+  .rule6{margin-top:30px;padding:24px;background:var(--panel);
+         border:1px solid var(--line);border-left:3px solid var(--violet);border-radius:12px;}
+  .r6k{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;text-transform:uppercase;
+       color:var(--violet-lt);margin-bottom:12px;}
+  .r6q{font-size:16.5px;line-height:1.6;color:var(--text);margin-bottom:14px;}
+  .r6q em{color:var(--violet-lt);font-style:normal;font-weight:700;}
+  .r6n{font-size:14px;line-height:1.65;color:var(--muted);}
+
+  /* ── section frame ── */
+  section{margin-top:96px;}
+  .kicker{
+    font-family:var(--mono);font-size:11px;letter-spacing:2.4px;text-transform:uppercase;
+    color:var(--violet-lt);margin-bottom:14px;
+  }
+  h2{font-size:clamp(26px,4vw,36px);line-height:1.14;font-weight:700;letter-spacing:-1px;}
+  .sub{margin-top:14px;color:var(--muted);font-size:16px;line-height:1.65;max-width:58ch;}
+
+  /* ── tokeniser ── */
+  .tok{
+    margin-top:34px;background:var(--panel);border:1px solid var(--line);
+    border-radius:14px;padding:28px;
+  }
+  .field{display:flex;gap:10px;flex-wrap:wrap;}
+  .field input{
+    flex:1;min-width:220px;background:var(--ink);border:1px solid var(--line);
+    border-radius:9px;padding:14px 16px;color:var(--text);font-family:var(--mono);
+    font-size:15px;outline:none;transition:border-color .2s;
+  }
+  .field input:focus{border-color:var(--violet);}
+  .field input::placeholder{color:#4A5063;}
+  button{
+    font-family:var(--sans);font-size:15px;font-weight:700;cursor:pointer;
+    border:none;border-radius:9px;padding:14px 24px;transition:transform .12s, filter .2s;
+  }
+  button:focus-visible{outline:2px solid var(--violet-lt);outline-offset:3px;}
+  button:active{transform:translateY(1px);}
+  .primary{background:var(--orange);color:#fff;}
+  .primary:hover{filter:brightness(1.1);}
+  .ghost{background:transparent;color:var(--text);border:1px solid var(--line);}
+  .ghost:hover{border-color:var(--muted);}
+
+  .stages{margin-top:24px;display:grid;gap:8px;}
+  .stage{
+    display:grid;grid-template-columns:26px 108px 1fr;align-items:center;gap:14px;
+    padding:13px 16px;background:var(--panel-2);border:1px solid transparent;
+    border-radius:9px;opacity:.28;transform:translateY(6px);
+    transition:opacity .45s ease, transform .45s ease, border-color .45s ease;
+  }
+  .stage.on{opacity:1;transform:none;border-color:var(--line);}
+  .stage .n{font-family:var(--mono);font-size:12px;color:var(--violet-lt);}
+  .stage .nm{font-size:13px;font-weight:700;letter-spacing:.2px;}
+  .stage .val{
+    font-family:var(--mono);font-size:12.5px;color:var(--muted);
+    word-break:break-all;line-height:1.5;
+  }
+  .stage.final{background:linear-gradient(90deg,rgba(166,45,201,.16),rgba(166,45,201,.04));}
+  .stage.final .val{color:var(--violet-lt);}
+
+  .note{
+    margin-top:18px;font-size:13px;line-height:1.6;color:var(--muted);
+    padding-left:14px;border-left:2px solid var(--line);
+  }
+
+  /* ── quiz ── */
+  .quiz{margin-top:34px;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .bar{height:3px;background:var(--panel-2);}
+  .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cyan),var(--violet),var(--orange));transition:width .5s cubic-bezier(.4,0,.2,1);}
+  .qbody{padding:32px 28px;}
+  .qcount{font-family:var(--mono);font-size:11px;letter-spacing:1.8px;color:var(--muted);text-transform:uppercase;}
+  .qtext{margin-top:14px;font-size:clamp(19px,3vw,25px);line-height:1.32;font-weight:700;letter-spacing:-.4px;min-height:66px;}
+  .opts{margin-top:26px;display:grid;gap:9px;}
+  .opt{
+    text-align:left;background:var(--panel-2);color:var(--text);border:1px solid var(--line);
+    border-radius:10px;padding:15px 18px;font-size:15px;font-weight:500;
+    transition:border-color .18s, background .18s, transform .12s;
+  }
+  .opt:hover{border-color:var(--violet);background:#1D2130;transform:translateX(3px);}
+
+  /* ── result ── */
+  .result{display:none;padding:36px 28px;}
+  .result.show{display:block;animation:rise .55s ease both;}
+  @keyframes rise{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+  .meter{height:10px;background:var(--panel-2);border-radius:6px;overflow:hidden;margin:22px 0 10px;}
+  .meter i{display:block;height:100%;width:0;border-radius:6px;transition:width 1.1s cubic-bezier(.3,0,.2,1);}
+  .mlabels{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:1px;}
+  .score{font-size:clamp(40px,8vw,62px);font-weight:700;letter-spacing:-2.5px;line-height:1;}
+  .verdict{font-size:20px;font-weight:700;margin-top:6px;letter-spacing:-.4px;}
+  .rtext{margin-top:16px;color:var(--muted);font-size:16px;line-height:1.68;}
+  .flags{margin-top:24px;display:grid;gap:8px;}
+  .flag{
+    display:flex;gap:12px;padding:13px 16px;background:var(--panel-2);
+    border-left:2px solid var(--orange);border-radius:0 8px 8px 0;
+    font-size:14px;line-height:1.5;color:var(--text);
+  }
+  .flag span{color:var(--orange);font-family:var(--mono);font-size:12px;flex-shrink:0;}
+  .actions{margin-top:30px;display:flex;gap:10px;flex-wrap:wrap;}
+
+  /* ── opt-in capture ── */
+  .capture{
+    margin-top:28px;background:var(--panel-2);border:1px solid var(--line);
+    border-radius:12px;padding:24px 22px;
+  }
+  .capture h3{font-size:17px;font-weight:700;letter-spacing:-.3px;margin-bottom:8px;}
+  .capture p.why{font-size:14px;line-height:1.6;color:var(--muted);margin-bottom:18px;}
+  .capture .grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  .capture input{
+    width:100%;background:var(--ink);border:1px solid var(--line);border-radius:9px;
+    padding:13px 15px;color:var(--text);font-family:var(--sans);font-size:14.5px;
+    outline:none;transition:border-color .2s;
+  }
+  .capture input:focus{border-color:var(--violet);}
+  .capture input::placeholder{color:#4A5063;}
+  .capture .wide{grid-column:1 / -1;}
+  .consent{font-size:12.5px;line-height:1.6;color:var(--muted);margin-top:14px;}
+  .capture .err{color:var(--orange);font-size:13px;margin-top:10px;display:none;}
+  .capture .err.show{display:block;}
+  .thanks{
+    display:none;padding:22px;background:rgba(63,208,155,.07);
+    border:1px solid rgba(63,208,155,.3);border-radius:12px;margin-top:28px;
+  }
+  .thanks.show{display:block;animation:rise .4s ease both;}
+  .thanks b{color:var(--green);}
+  @media (max-width:640px){ .capture .grid{grid-template-columns:1fr;} }
+
+  /* ── proof ── */
+  .proof{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:34px;}
+  .pc{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:22px 20px;}
+  .pc b{display:block;font-size:30px;letter-spacing:-1.2px;line-height:1;margin-bottom:9px;}
+  .pc:nth-child(1) b{color:var(--violet-lt);}
+  .pc:nth-child(2) b{color:var(--cyan);}
+  .pc:nth-child(3) b{color:var(--orange);}
+  .pc p{font-size:13px;line-height:1.55;color:var(--muted);}
+
+  /* ── layers ── */
+  .layers{margin-top:26px;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .ly{display:flex;gap:14px;align-items:baseline;padding:16px 20px;border-bottom:1px solid var(--line);font-size:15px;}
+  .ly:last-child{border-bottom:none;}
+  .ly b{min-width:120px;}
+  .ly span{color:var(--muted);font-size:14px;}
+
+  /* ── footer ── */
+  footer{margin-top:90px;padding-top:30px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;line-height:1.7;}
+  footer a{color:var(--cyan);text-decoration:none;}
+  footer a:hover{text-decoration:underline;}
+
+  @media (max-width:640px){
+    .states,.proof{grid-template-columns:1fr;}
+    .stage{grid-template-columns:24px 1fr;}
+    .stage .nm{display:none;}
+    .ly{flex-direction:column;gap:4px;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important;transition:none !important;scroll-behavior:auto;}
+  }
+</style>
+</head>
+<body>
+
+<script>
+/* ── Posidex funnel tracking ──────────────────────────────
+   Anonymous. Writes to Supabase with the public anon key,
+   which has INSERT-only rights on campaign_events. No PII.
+   Fill in the two constants below after running the SQL.  */
+(function(){
+  "use strict";
+  var SUPABASE_URL = 'https://YOUR_PROJECT_REF.supabase.co';
+  var SUPABASE_ANON = 'YOUR_ANON_KEY';
+  var CAMPAIGN = 'exposure-check-v2';
+
+  var READY = SUPABASE_URL.indexOf('YOUR_') === -1;
+
+  function uuid(){
+    if (crypto.randomUUID) return crypto.randomUUID();
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,function(c){
+      var r=Math.random()*16|0, v=c==='x'?r:(r&0x3|0x8);
+      return v.toString(16);
+    });
+  }
+  var sid;
+  try {
+    sid = sessionStorage.getItem('px_sid');
+    if(!sid){ sid = uuid(); sessionStorage.setItem('px_sid', sid); }
+  } catch(e){ sid = uuid(); }
+  window.PX_SESSION = sid;
+
+  var q = new URLSearchParams(location.search);
+
+  window.pxTrack = function(event, extra){
+    if(!READY) return;
+    var row = Object.assign({
+      session_id: sid,
+      campaign:   CAMPAIGN,
+      event:      event,
+      referrer:     document.referrer ? document.referrer.slice(0,300) : null,
+      utm_source:   q.get('utm_source'),
+      utm_medium:   q.get('utm_medium'),
+      utm_campaign: q.get('utm_campaign')
+    }, extra || {});
+
+    fetch(SUPABASE_URL + '/rest/v1/campaign_events', {
+      method:'POST', keepalive:true,
+      headers:{
+        apikey: SUPABASE_ANON,
+        Authorization: 'Bearer ' + SUPABASE_ANON,
+        'Content-Type':'application/json',
+        Prefer:'return=minimal'
+      },
+      body: JSON.stringify(row)
+    }).catch(function(){});
+  };
+
+  pxTrack('page_view');
+})();
+</script>
+
+
+<div class="glow"></div>
+
+<div class="shell">
+
+  <nav>
+    <div class="mark">POSIDEX</div>
+    <div class="rule"><i style="background:#EE6C1A"></i><i style="background:#A62DC9"></i><i style="background:#2B9FD4"></i></div>
+  </nav>
+
+  <header>
+    <p class="eyebrow">π Data Vault · Secure MDM</p>
+    <h1>Your data is encrypted.<br><em>Until you use it.</em></h1>
+    <p class="lede">AES-256 covers PII at rest. TLS 1.3 covers it in motion. Neither covers the moment a query decrypts it into server memory, which is every query, every day.</p>
+  </header>
+
+<!-- ── ASSESSMENT ── -->
+  <section id="check">
+    <p class="kicker">60-second exposure check</p>
+    <h2>Five questions.<br>No jargon.</h2>
+    <p class="sub">Every one describes something happening inside your organisation right now. Sixty seconds, and no email needed to see your score.</p>
+
+    <div class="quiz">
+      <div class="bar"><i id="bar"></i></div>
+
+      <div class="qbody" id="qbody">
+        <p class="qcount" id="qcount">Question 1 of 5</p>
+        <p class="qtext" id="qtext"></p>
+        <div class="opts" id="opts"></div>
+      </div>
+
+      <div class="result" id="result">
+        <p class="qcount">Your result</p>
+        <p class="score" id="scoreNum">0</p>
+        <p class="verdict" id="verdict"></p>
+        <div class="meter"><i id="meterFill"></i></div>
+        <div class="mlabels"><span>CONTAINED</span><span>EXPOSED</span></div>
+        <p class="rtext" id="rtext"></p>
+        <p class="rtext" style="color:#C77BE0;font-weight:700;margin-top:14px;">Four of these describe your organisation today. The fifth is the one with a date on it.</p>
+        <div class="flags" id="flags"></div>
+
+        <div class="capture" id="capture">
+          <h3>Want this as a one-page summary?</h3>
+          <p class="why">I will send your result written up properly, plus how other institutions answered the same five questions. Nothing else.</p>
+          <div class="grid">
+            <input id="cName" type="text" placeholder="Your name" autocomplete="name">
+            <input id="cOrg" type="text" placeholder="Organisation" autocomplete="organization">
+            <input id="cEmail" class="wide" type="email" placeholder="Work email address" autocomplete="email" required>
+            <input id="cCompany" type="text" tabindex="-1" autocomplete="off" aria-hidden="true"
+                   style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
+            <button class="primary wide" id="cSend" type="button">Email me my results</button>
+          </div>
+          <p class="err" id="cErr">Please enter a valid work email address.</p>
+          <p class="consent">Your answers and score are sent with this so the summary is specific to you. Held only for this purpose, never shared, and deleted on request — reply to my email or write to raghuram.kuchibhotla@posidex.com.</p>
+        </div>
+
+        <div class="thanks" id="thanks">
+          <b>Sent.</b> Your summary is on its way — usually within one working day. If you would rather talk it through first, the calendar below is open.
+        </div>
+
+        <div class="actions">
+          <button class="primary" onclick="pxTrack('cta_click',{detail:'book-call'});window.open('https://calendar.app.google/be2s3wZzyogTWagAA','_blank','noopener')">Book a 20-minute call</button>
+          <button class="ghost" onclick="pxTrack('cta_click',{detail:'book-call'});window.open('https://calendar.app.google/be2s3wZzyogTWagAA','_blank','noopener')">Request a demo</button>
+          <button class="ghost" id="again">Start again</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- ── FINAL CTA ── -->
+  <section>
+    <div class="fcta">
+      <h3>Start with one repository.</h3>
+      <p>Nominate a single source. We run discovery and tokenisation against it inside your environment, and you get a findings report showing what PII was there, what was misclassified, and what a protected version looks like. No cost, no data leaves your network, and it takes a few hours of one person&rsquo;s time.</p>
+      <div class="actions">
+        <button class="primary" onclick="pxTrack('cta_click',{detail:'book-call'});window.open('https://calendar.app.google/be2s3wZzyogTWagAA','_blank','noopener')">Book a 20-minute call</button>
+        <button class="ghost" onclick="document.getElementById('check').scrollIntoView()">Back to the questions</button>
+      </div>
+      <p style="margin:20px 0 0;font-family:var(--mono);font-size:11.5px;letter-spacing:.4px;color:#5E6478;">
+        DPDP full compliance due 13 May 2027 &nbsp;·&nbsp; &#8377;250 crore maximum penalty per instance
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <strong style="color:var(--text);letter-spacing:2.5px;">POSIDEX</strong><br>
+    Posidex Technologies Pvt Ltd · Hyderabad, India<br>
+    Raghuram Srivatsa · Pre-Sales Consultant · +91 91002 21712 ·
+    <a href="https://www.posidex.com">posidex.com</a><br>
+
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ═══════════════════════════════════════════════════════════
+     LEAD ENDPOINT
+     Points at the Netlify function that talks to Zoho CRM.
+     Credentials live in that function, never in this page.
+     Leave as-is if the page and function are on the same site.
+     ═══════════════════════════════════════════════════════════ */
+  var LEAD_ENDPOINT = '/api/lead';
+  var FALLBACK_EMAIL = 'raghuram.kuchibhotla@posidex.com';
+
+  /* ══ ASSESSMENT ══ */
+  var Q=[
+    {q:"How many people in your organisation can pull up a customer's Aadhaar or PAN and read it?",
+     a:[["A handful, and we know who",0],["Quite a few",2],["Hundreds, vendors included",3],["No idea",3]],
+     flag:"Every person who can read it is a way it can leave. Most institutions have never counted."},
+
+    {q:"Do your test and training systems run on real customer data?",
+     a:[["No, it is disguised first",0],["Partly",2],["Yes, the real thing",3],["I would have to ask",3]],
+     flag:"Test systems hold the same real customers, with a fraction of the protection and none of the scrutiny."},
+
+    {q:"Every time a system searches for a customer, their data is unlocked to do it. Did you know that?",
+     a:[["Yes, and we have dealt with it",0],["Yes, but nothing has changed",3],["No, I did not",3],["I would need to check",3]],
+     flag:"This is the gap. Your data is safe while it sits still and exposed the moment anyone uses it."},
+
+    {q:"If customer data walked out from inside your organisation, how soon would you find out?",
+     a:[["Same day",0],["Within a month",2],["Only if someone told us",3],["We probably would not",3]],
+     flag:"Internal exposure rarely sets off an alarm. Most institutions hear about it from outside first."},
+
+    {q:"DPDP compliance is due 13 May 2027. Where is your programme today?",
+     a:[["Running, and funded",0],["Approved, not started",2],["Still being discussed",3],["Not on the plan yet",3]],
+     flag:"Enterprise security programmes in BFSI take twelve to eighteen months. The window to start and still finish is closing."}
+  ];
+
+  var idx=0, score=0, hits=[], picked=[], finalVerdict='';
+  var qcount=document.getElementById('qcount'),
+      qtext=document.getElementById('qtext'),
+      opts=document.getElementById('opts'),
+      bar=document.getElementById('bar'),
+      qbody=document.getElementById('qbody'),
+      result=document.getElementById('result');
+
+  function render(){
+    var item=Q[idx];
+    qcount.textContent='Question '+(idx+1)+' of '+Q.length;
+    qtext.textContent=item.q;
+    bar.style.width=(idx/Q.length*100)+'%';
+    opts.innerHTML='';
+    item.a.forEach(function(pair){
+      var b=document.createElement('button');
+      b.className='opt';
+      b.type='button';
+      b.textContent=pair[0];
+      b.addEventListener('click',function(){
+        if(idx===0) pxTrack('quiz_start');
+        pxTrack('quiz_progress',{step:idx+1});
+        score+=pair[1];
+        picked.push('Q'+(idx+1)+': '+pair[0]+' ['+pair[1]+']');
+        if(pair[1]>=2)hits.push(item.flag);
+        idx++;
+        if(idx<Q.length){render();}else{finish();}
+      });
+      opts.appendChild(b);
+    });
+  }
+
+  function finish(){
+    bar.style.width='100%';
+    qbody.style.display='none';
+    result.classList.add('show');
+
+    var max=15, pct=Math.round(score/max*100);
+    document.getElementById('scoreNum').textContent=score+' / '+max;
+
+    var verdict, colour, text;
+    if(score<=4){
+      verdict='Contained'; colour='var(--green)';
+      text='You are ahead of most institutions. The remaining risk is usually in the systems nobody owns any more — worth confirming rather than assuming.';
+    }else if(score<=9){
+      verdict='Partially exposed'; colour='var(--orange)';
+      text='Typical of a well-run institution that has solved storage and transit but not processing. The gap is narrow, specific, and closable without re-architecting anything.';
+    }else{
+      verdict='Materially exposed'; colour='#E2483D';
+      text='Customer PII is being decrypted routinely, and probably visible to more people and processes than anyone has counted. This is the common position, not an unusual one — but under DPDP it is now a liability rather than a design choice.';
+    }
+
+    finalVerdict=verdict;
+    pxTrack('quiz_complete',{score:score,verdict:verdict});
+    document.getElementById('verdict').textContent=verdict;
+    document.getElementById('verdict').style.color=colour;
+    var fill=document.getElementById('meterFill');
+    fill.style.background=colour;
+    setTimeout(function(){fill.style.width=Math.max(pct,6)+'%';},120);
+    document.getElementById('rtext').textContent=text;
+
+    var seen={}, box=document.getElementById('flags');
+    box.innerHTML='';
+    hits.forEach(function(f){
+      if(seen[f])return; seen[f]=1;
+      var d=document.createElement('div');
+      d.className='flag';
+      d.innerHTML='<span>▲</span><div>'+f+'</div>';
+      box.appendChild(d);
+    });
+  }
+
+  /* ══ CAPTURE — post to Google Form ══ */
+  var capture=document.getElementById('capture'),
+      thanks=document.getElementById('thanks'),
+      cErr=document.getElementById('cErr'),
+      cSend=document.getElementById('cSend');
+
+  function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
+
+  cSend.addEventListener('click',function(){
+    var email=document.getElementById('cEmail').value.trim(),
+        name =document.getElementById('cName').value.trim(),
+        org  =document.getElementById('cOrg').value.trim();
+
+    if(!validEmail(email)){ cErr.classList.add('show'); return; }
+    cErr.classList.remove('show');
+    cSend.disabled=true;
+    cSend.textContent='Sending…';
+
+    var payload = {
+      email:   email,
+      name:    name || '',
+      org:     org  || '',
+      score:   score + ' / 15',
+      verdict: finalVerdict,
+      answers: picked.join('  |  '),
+      hp:      document.getElementById('cCompany').value   // honeypot
+    };
+
+    function done(){
+      capture.style.display='none';
+      thanks.classList.add('show');
+    }
+
+    function fallbackToEmail(){
+      window.location.href='mailto:'+FALLBACK_EMAIL
+        +'?subject='+encodeURIComponent('PII exposure check — '+finalVerdict+' ('+score+'/15)')
+        +'&body='+encodeURIComponent(
+            'Name: '+(name||'—')+'\nOrganisation: '+(org||'—')+'\nEmail: '+email
+            +'\n\nScore: '+score+' / 15\nVerdict: '+finalVerdict
+            +'\n\n'+picked.join('\n'));
+      done();
+    }
+
+    fetch(LEAD_ENDPOINT,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    })
+    .then(function(r){
+      if(r.ok){ done(); }
+      else { fallbackToEmail(); }
+    })
+    .catch(fallbackToEmail);
+  });
+
+  document.getElementById('cEmail').addEventListener('keydown',function(e){
+    if(e.key==='Enter')cSend.click();
+  });
+
+  document.getElementById('again').addEventListener('click',function(){
+    idx=0;score=0;hits=[];picked=[];finalVerdict='';
+    result.classList.remove('show');
+    qbody.style.display='block';
+    document.getElementById('meterFill').style.width='0';
+    capture.style.display='';
+    thanks.classList.remove('show');
+    cSend.disabled=false;
+    cSend.textContent='Email me my results';
+    cErr.classList.remove('show');
+    render();
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
