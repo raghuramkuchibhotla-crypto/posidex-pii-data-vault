@@ -369,7 +369,7 @@
             <input id="cName" type="text" placeholder="Your name" autocomplete="name">
             <input id="cOrg" type="text" placeholder="Organisation" autocomplete="organization">
             <input id="cEmail" class="wide" type="email" placeholder="Work email address" autocomplete="email" required>
-            <input id="cCompany" type="text" tabindex="-1" autocomplete="off" aria-hidden="true"
+            <input id="cWebsite" name="website" type="text" tabindex="-1" autocomplete="off" aria-hidden="true"
                    style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;">
             <button class="primary wide" id="cSend" type="button">Email me my results</button>
           </div>
@@ -554,7 +554,7 @@
       score:   score + ' / 15',
       verdict: finalVerdict,
       answers: picked.join('  |  '),
-      hp:      document.getElementById('cCompany').value   // honeypot
+      hp:      document.getElementById('cWebsite').value   // honeypot
     };
 
     function done(){
