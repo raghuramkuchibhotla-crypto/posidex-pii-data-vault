@@ -96,6 +96,49 @@
   .qa p{font-size:14.5px;line-height:1.65;color:var(--muted);}
   .qa p b{color:#C9CEDA;font-weight:700;}
 
+
+  /* ── assessment additions ── */
+  .parttag{font-family:var(--mono);font-size:11px;letter-spacing:2.4px;text-transform:uppercase;
+           color:var(--violet-lt);margin-bottom:16px;}
+  .qgroup{margin-bottom:34px;padding-bottom:32px;border-bottom:1px solid var(--line);}
+  .qgroup:last-of-type{border-bottom:none;padding-bottom:22px;}
+  .qhint{font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;
+         color:var(--muted);margin-left:10px;font-weight:400;}
+  .qbody{display:none;}
+  .qbody.active{display:block;}
+  .opts-multi{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .opts .opt .pts{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--violet-lt);
+                  letter-spacing:.5px;opacity:.85;}
+  .opt.selected{background:rgba(97,35,131,.28);border-color:var(--violet-lt);color:var(--text);}
+  .opt.selected .pts{color:var(--violet-lt);opacity:1;}
+  .next-btn{margin-top:26px;width:100%;padding:15px 26px;font-size:15px;}
+  .next-btn:disabled{opacity:.35;cursor:not-allowed;}
+  .row-nav{display:flex;gap:10px;margin-top:26px;}
+  .row-nav .next-btn{flex:1;margin-top:0;}
+  .row-nav .ghost{margin-top:0;padding:15px 22px;}
+  /* matrix */
+  .matrix{margin-top:22px;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .matrix-header,.matrix-row{display:grid;grid-template-columns:1.5fr repeat(4,1fr);gap:0;}
+  .matrix-header{background:var(--panel-2);border-bottom:1px solid var(--line);}
+  .matrix-header>div{padding:14px 8px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.4px;
+                     text-transform:uppercase;color:var(--muted);text-align:center;line-height:1.4;}
+  .matrix-header .pts{color:var(--violet-lt);}
+  .matrix-row{border-bottom:1px solid var(--line);}
+  .matrix-row:last-child{border-bottom:none;}
+  .matrix-label{padding:16px 14px;font-size:14px;font-weight:600;color:var(--text);
+                display:flex;align-items:center;background:rgba(97,35,131,.04);}
+  .mcell{background:transparent;border:none;border-left:1px solid var(--line);color:var(--muted);
+         font-family:var(--sans);cursor:pointer;transition:background .15s;position:relative;}
+  .mcell:hover{background:rgba(97,35,131,.12);}
+  .mcell.selected{background:var(--violet);color:#fff;}
+  .mcell.selected::after{content:'●';font-size:16px;}
+  @media (max-width:640px){
+    .opts-multi{grid-template-columns:1fr;}
+    .matrix-header>div,.matrix-label{padding:10px 6px;font-size:10px;}
+    .matrix-label{font-size:12px;}
+    .matrix-header,.matrix-row{grid-template-columns:1.3fr repeat(4,1fr);}
+  }
+
   /* ── final cta ── */
   .fcta{margin-top:32px;padding:30px 26px;border-radius:14px;
         background:linear-gradient(155deg,#1B1029 0%,#0B0D14 62%);
@@ -337,38 +380,153 @@
 
   <header>
     <p class="eyebrow">π Data Vault · Secure MDM</p>
-    <h1>Your data is encrypted.<br><em>Until you use it.</em></h1>
-    <p class="lede">AES-256 covers PII at rest. TLS 1.3 covers it in motion. Neither covers the moment a query decrypts it into server memory, which is every query, every day.</p>
+    <h1>How much is PII exposure<br><em>costing you?</em></h1>
+    <p class="lede">Estimate your compliance risk, breach cost, and fraud exposure in 3 minutes. Structured, auditable, and free — a starting point before May 13, 2027.</p>
   </header>
 
 <!-- ── ASSESSMENT ── -->
   <section id="check">
-    <p class="kicker">60-second exposure check</p>
-    <h2>Five questions.<br>No jargon.</h2>
-    <p class="sub">Every one describes something happening inside your organization right now. Sixty seconds, and no email needed to see your score.</p>
+    <p class="kicker">Zero-Data-Exposure Value Assessment</p>
+    <h2>Free assessment.<br>3 minutes. No login.</h2>
+    <p class="sub">Most institutions have solved data at rest and in transit. This assessment estimates the business impact of PII exposure during the moments data is actually being used — queried, screened, matched, analyzed, or shared.</p>
 
     <div class="quiz">
       <div class="bar"><i id="bar"></i></div>
 
-      <div class="qbody" id="qbody">
-        <p class="qcount" id="qcount">Question 1 of 5</p>
-        <p class="qtext" id="qtext"></p>
-        <div class="opts" id="opts"></div>
+      <!-- Part A: Data Footprint -->
+      <div class="qbody active" id="partA">
+        <p class="parttag">Part A · Data Footprint</p>
+
+        <div class="qgroup">
+          <p class="qtext">How many customer records do you process?</p>
+          <div class="opts" data-qid="records" data-mode="radio">
+            <button type="button" class="opt" data-v="2">Less than 100,000 <span class="pts">+2</span></button>
+            <button type="button" class="opt" data-v="5">100,000 – 1 million <span class="pts">+5</span></button>
+            <button type="button" class="opt" data-v="9">1 – 10 million <span class="pts">+9</span></button>
+            <button type="button" class="opt" data-v="14">10 – 50 million <span class="pts">+14</span></button>
+            <button type="button" class="opt" data-v="20">50 million+ <span class="pts">+20</span></button>
+          </div>
+        </div>
+
+        <div class="qgroup">
+          <p class="qtext">What sensitive data types do you process? <span class="qhint">Select all that apply · +2 each</span></p>
+          <div class="opts opts-multi" data-qid="datatypes" data-mode="multi">
+            <button type="button" class="opt" data-v="2">PAN</button>
+            <button type="button" class="opt" data-v="2">Aadhaar</button>
+            <button type="button" class="opt" data-v="2">Mobile Numbers</button>
+            <button type="button" class="opt" data-v="2">Bank Account Numbers</button>
+            <button type="button" class="opt" data-v="2">KYC Documents</button>
+            <button type="button" class="opt" data-v="2">Credit Information</button>
+            <button type="button" class="opt" data-v="2">Financial Transactions</button>
+            <button type="button" class="opt" data-v="2">Biometric Information</button>
+          </div>
+        </div>
+
+        <div class="qgroup">
+          <p class="qtext">How many systems store PII in your organization?</p>
+          <div class="opts" data-qid="systems" data-mode="radio">
+            <button type="button" class="opt" data-v="2">Less than 5 <span class="pts">+2</span></button>
+            <button type="button" class="opt" data-v="5">5 – 10 <span class="pts">+5</span></button>
+            <button type="button" class="opt" data-v="8">10 – 20 <span class="pts">+8</span></button>
+            <button type="button" class="opt" data-v="10">20+ <span class="pts">+10</span></button>
+          </div>
+        </div>
+
+        <button type="button" class="primary next-btn" id="toB1">Continue to Part B →</button>
       </div>
 
+      <!-- Part B Section 1: Business Process Exposure Matrix -->
+      <div class="qbody" id="partB1">
+        <p class="parttag">Part B · Section 1 · Business Process Exposure</p>
+        <p class="qtext">How often is PII exposed during each of these processes?</p>
+
+        <div class="matrix">
+          <div class="matrix-header">
+            <div></div>
+            <div>Never<br><span class="pts">0</span></div>
+            <div>Sometimes<br><span class="pts">+2</span></div>
+            <div>Frequently<br><span class="pts">+5</span></div>
+            <div>Always<br><span class="pts">+8</span></div>
+          </div>
+          <div class="matrix-row" data-qid="onboarding">
+            <div class="matrix-label">Customer Onboarding</div>
+            <button type="button" class="mcell" data-v="0"></button>
+            <button type="button" class="mcell" data-v="2"></button>
+            <button type="button" class="mcell" data-v="5"></button>
+            <button type="button" class="mcell" data-v="8"></button>
+          </div>
+          <div class="matrix-row" data-qid="mdm">
+            <div class="matrix-label">Customer 360 / MDM</div>
+            <button type="button" class="mcell" data-v="0"></button>
+            <button type="button" class="mcell" data-v="2"></button>
+            <button type="button" class="mcell" data-v="5"></button>
+            <button type="button" class="mcell" data-v="8"></button>
+          </div>
+          <div class="matrix-row" data-qid="aml">
+            <div class="matrix-label">AML / Screening</div>
+            <button type="button" class="mcell" data-v="0"></button>
+            <button type="button" class="mcell" data-v="2"></button>
+            <button type="button" class="mcell" data-v="5"></button>
+            <button type="button" class="mcell" data-v="8"></button>
+          </div>
+          <div class="matrix-row" data-qid="cdd">
+            <div class="matrix-label">Customer Due Diligence</div>
+            <button type="button" class="mcell" data-v="0"></button>
+            <button type="button" class="mcell" data-v="2"></button>
+            <button type="button" class="mcell" data-v="5"></button>
+            <button type="button" class="mcell" data-v="8"></button>
+          </div>
+          <div class="matrix-row" data-qid="analytics">
+            <div class="matrix-label">Analytics &amp; Reporting</div>
+            <button type="button" class="mcell" data-v="0"></button>
+            <button type="button" class="mcell" data-v="2"></button>
+            <button type="button" class="mcell" data-v="5"></button>
+            <button type="button" class="mcell" data-v="8"></button>
+          </div>
+        </div>
+
+        <div class="row-nav">
+          <button type="button" class="ghost" id="backToA">← Back</button>
+          <button type="button" class="primary next-btn" id="toB2">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Part B Section 2: Exposure Statements -->
+      <div class="qbody" id="partB2">
+        <p class="parttag">Part B · Section 2 · Your Exposure</p>
+        <p class="qtext">Which of these apply to your organization today? <span class="qhint">Select all that apply · +2 each</span></p>
+
+        <div class="opts opts-multi" data-qid="exposure" data-mode="multi">
+          <button type="button" class="opt">We process PII in plaintext during onboarding</button>
+          <button type="button" class="opt">We expose PII during MDM operations</button>
+          <button type="button" class="opt">Multiple teams access customer data</button>
+          <button type="button" class="opt">Customer data exists across multiple systems</button>
+          <button type="button" class="opt">We have duplicate customer records</button>
+          <button type="button" class="opt">We rely on manual controls for compliance</button>
+          <button type="button" class="opt">We cannot fully track PII access</button>
+          <button type="button" class="opt">Third parties access customer PII</button>
+          <button type="button" class="opt">We use customer data for analytics</button>
+          <button type="button" class="opt">We are preparing for DPDP compliance</button>
+        </div>
+
+        <div class="row-nav">
+          <button type="button" class="ghost" id="backToB1">← Back</button>
+          <button type="button" class="primary next-btn" id="seeResult">See my result →</button>
+        </div>
+      </div>
+
+      <!-- Result -->
       <div class="result" id="result">
-        <p class="qcount">Your result</p>
-        <p class="score" id="scoreNum">0</p>
+        <p class="parttag">Your assessment</p>
+        <p class="score" id="scoreNum">0 / 100</p>
         <p class="verdict" id="verdict"></p>
         <div class="meter"><i id="meterFill"></i></div>
-        <div class="mlabels"><span>CONTAINED</span><span>EXPOSED</span></div>
+        <div class="mlabels"><span>CONTAINED</span><span>MATERIALLY EXPOSED</span></div>
         <p class="rtext" id="rtext"></p>
-        <p class="rtext" style="color:#8A60A5;font-weight:700;margin-top:14px;">Four of these describe your organization today. The fifth is the one with a date on it.</p>
-        <div class="flags" id="flags"></div>
 
         <div class="capture" id="capture">
-          <h3>Want this as a one-page summary?</h3>
-          <p class="why">I will send your result written up properly, plus how other institutions answered the same five questions. Nothing else.</p>
+          <h3>Want this written up properly?</h3>
+          <p class="why">I will send your score with a one-page reading of where the exposure typically sits and what the fastest route to close it looks like. Nothing else.</p>
           <div class="grid">
             <input id="cName" type="text" placeholder="Your name" autocomplete="name">
             <input id="cOrg" type="text" placeholder="Organization" autocomplete="organization">
@@ -387,7 +545,6 @@
 
         <div class="actions">
           <button class="primary" onclick="pxTrack('cta_click',{detail:'book-call'});window.open('https://calendar.app.google/be2s3wZzyogTWagAA','_blank','noopener')">Book a 20-minute call</button>
-          <button class="ghost" onclick="pxTrack('cta_click',{detail:'book-call'});window.open('https://calendar.app.google/be2s3wZzyogTWagAA','_blank','noopener')">Request a demo</button>
           <button class="ghost" id="again">Start again</button>
         </div>
       </div>
@@ -439,173 +596,240 @@
   var FALLBACK_EMAIL = 'raghuram.kuchibhotla@posidex.com';
 
   /* ══ ASSESSMENT ══ */
-  var Q=[
-    {q:"How many people in your organization can pull up a customer's Aadhaar or PAN and read it?",
-     a:[["A handful, and we know who",0],["Quite a few",2],["Hundreds, vendors included",3],["No idea",3]],
-     flag:"Every person who can read it is a way it can leave. Most institutions have never counted."},
+  var scores = { records:0, datatypes:0, systems:0,
+                 onboarding:null, mdm:null, aml:null, cdd:null, analytics:null,
+                 exposure:0 };
+  var picked = [];
+  var finalVerdict = '', finalScore = 0;
 
-    {q:"Do your test and training systems run on real customer data?",
-     a:[["No, it is disguised first",0],["Partly",2],["Yes, the real thing",3],["I would have to ask",3]],
-     flag:"Test systems hold the same real customers, with a fraction of the protection and none of the scrutiny."},
+  var partA  = document.getElementById('partA'),
+      partB1 = document.getElementById('partB1'),
+      partB2 = document.getElementById('partB2'),
+      result = document.getElementById('result'),
+      bar    = document.getElementById('bar');
 
-    {q:"Every time a system searches for a customer, their data is unlocked to do it. Did you know that?",
-     a:[["Yes, and we have dealt with it",0],["Yes, but nothing has changed",3],["No, I did not",3],["I would need to check",3]],
-     flag:"This is the gap. Your data is safe while it sits still and exposed the moment anyone uses it."},
+  function setStage(pct){ bar.style.width = pct + '%'; }
 
-    {q:"If customer data walked out from inside your organization, how soon would you find out?",
-     a:[["Same day",0],["Within a month",2],["Only if someone told us",3],["We probably would not",3]],
-     flag:"Internal exposure rarely sets off an alarm. Most institutions hear about it from outside first."},
-
-    {q:"DPDP compliance is due 13 May 2027. Where is your programme today?",
-     a:[["Running, and funded",0],["Approved, not started",2],["Still being discussed",3],["Not on the plan yet",3]],
-     flag:"Enterprise security programmes in BFSI take twelve to eighteen months. The window to start and still finish is closing."}
-  ];
-
-  var idx=0, score=0, hits=[], picked=[], finalVerdict='';
-  var qcount=document.getElementById('qcount'),
-      qtext=document.getElementById('qtext'),
-      opts=document.getElementById('opts'),
-      bar=document.getElementById('bar'),
-      qbody=document.getElementById('qbody'),
-      result=document.getElementById('result');
-
-  function render(){
-    var item=Q[idx];
-    qcount.textContent='Question '+(idx+1)+' of '+Q.length;
-    qtext.textContent=item.q;
-    bar.style.width=(idx/Q.length*100)+'%';
-    opts.innerHTML='';
-    item.a.forEach(function(pair){
-      var b=document.createElement('button');
-      b.className='opt';
-      b.type='button';
-      b.textContent=pair[0];
-      b.addEventListener('click',function(){
-        if(idx===0) pxTrack('quiz_start');
-        pxTrack('quiz_progress',{step:idx+1});
-        score+=pair[1];
-        picked.push('Q'+(idx+1)+': '+pair[0]+' ['+pair[1]+']');
-        if(pair[1]>=2)hits.push(item.flag);
-        idx++;
-        if(idx<Q.length){render();}else{finish();}
+  // ── Radio + multi handlers for Part A / Part B2
+  document.querySelectorAll('.opts').forEach(function(group){
+    var mode = group.getAttribute('data-mode');
+    var qid  = group.getAttribute('data-qid');
+    group.querySelectorAll('.opt').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        if(mode === 'radio'){
+          group.querySelectorAll('.opt').forEach(function(b){ b.classList.remove('selected'); });
+          btn.classList.add('selected');
+          scores[qid] = parseInt(btn.getAttribute('data-v'), 10);
+        } else {
+          btn.classList.toggle('selected');
+          var total = 0;
+          group.querySelectorAll('.opt.selected').forEach(function(b){
+            var v = b.getAttribute('data-v');
+            total += v ? parseInt(v,10) : 2;
+          });
+          scores[qid] = total;
+        }
+        updateGateButtons();
       });
-      opts.appendChild(b);
     });
+  });
+
+  // ── Matrix cell handler (single per row)
+  document.querySelectorAll('.matrix-row').forEach(function(row){
+    var qid = row.getAttribute('data-qid');
+    row.querySelectorAll('.mcell').forEach(function(cell){
+      cell.addEventListener('click', function(){
+        row.querySelectorAll('.mcell').forEach(function(c){ c.classList.remove('selected'); });
+        cell.classList.add('selected');
+        scores[qid] = parseInt(cell.getAttribute('data-v'), 10);
+        updateGateButtons();
+      });
+    });
+  });
+
+  // ── Enable/disable stage buttons
+  function updateGateButtons(){
+    var partAdone = scores.records > 0 && scores.systems > 0; // datatypes optional
+    document.getElementById('toB1').disabled = !partAdone;
+
+    var partB1done = scores.onboarding !== null && scores.mdm !== null &&
+                     scores.aml !== null && scores.cdd !== null && scores.analytics !== null;
+    document.getElementById('toB2').disabled = !partB1done;
   }
+  updateGateButtons();
+
+  // ── Stage navigation
+  document.getElementById('toB1').addEventListener('click', function(){
+    if(this.disabled) return;
+    pxTrack('quiz_progress',{step:1,detail:'to-partB1'});
+    partA.classList.remove('active');
+    partB1.classList.add('active');
+    setStage(40);
+    window.scrollTo({top: partB1.getBoundingClientRect().top + window.scrollY - 80, behavior:'smooth'});
+  });
+  document.getElementById('backToA').addEventListener('click', function(){
+    partB1.classList.remove('active');
+    partA.classList.add('active');
+    setStage(0);
+    window.scrollTo({top: partA.getBoundingClientRect().top + window.scrollY - 80, behavior:'smooth'});
+  });
+  document.getElementById('toB2').addEventListener('click', function(){
+    if(this.disabled) return;
+    pxTrack('quiz_progress',{step:2,detail:'to-partB2'});
+    partB1.classList.remove('active');
+    partB2.classList.add('active');
+    setStage(70);
+    window.scrollTo({top: partB2.getBoundingClientRect().top + window.scrollY - 80, behavior:'smooth'});
+  });
+  document.getElementById('backToB1').addEventListener('click', function(){
+    partB2.classList.remove('active');
+    partB1.classList.add('active');
+    setStage(40);
+    window.scrollTo({top: partB1.getBoundingClientRect().top + window.scrollY - 80, behavior:'smooth'});
+  });
+
+  document.getElementById('seeResult').addEventListener('click', function(){
+    finish();
+  });
+
+  // Track quiz start on first interaction with Part A
+  var started = false;
+  document.querySelectorAll('#partA .opt').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      if(!started){ started = true; pxTrack('quiz_start'); }
+    });
+  });
 
   function finish(){
-    bar.style.width='100%';
-    qbody.style.display='none';
+    setStage(100);
+    partB2.classList.remove('active');
     result.classList.add('show');
 
-    var max=15, pct=Math.round(score/max*100);
-    document.getElementById('scoreNum').textContent=score+' / '+max;
+    // Total score, cap 100
+    var raw = 0;
+    Object.keys(scores).forEach(function(k){ raw += (scores[k] || 0); });
+    finalScore = Math.min(raw, 100);
 
     var verdict, color, text;
-    if(score<=4){
-      verdict='Contained'; color='var(--green)';
-      text='You are ahead of most institutions. The remaining risk is usually in the systems nobody owns any more — worth confirming rather than assuming.';
-    }else if(score<=9){
-      verdict='Partially exposed'; color='var(--orange)';
-      text='Typical of a well-run institution that has solved storage and transit but not processing. The gap is narrow, specific, and closable without re-architecting anything.';
-    }else{
-      verdict='Materially exposed'; color='#E2483D';
-      text='Customer PII is being decrypted routinely, and probably visible to more people and processes than anyone has counted. This is the common position, not an unusual one — but under DPDP it is now a liability rather than a design choice.';
+    if(finalScore <= 25){
+      verdict = 'Contained';       color = '#1ABBEE';
+      text = 'You are ahead of most institutions. Remaining risk is usually in systems nobody owns any more — worth confirming rather than assuming. A tokenized reference model will look like a strategic upgrade rather than a fix.';
+    } else if(finalScore <= 55){
+      verdict = 'Partially exposed'; color = 'var(--yellow)';
+      text = 'Typical of a well-run institution that has solved storage and transit but not processing. The exposure is narrow, specific, and closable without re-architecting anything. Start with the single largest processing surface — usually MDM or AML — and displace decrypt-to-use there first.';
+    } else {
+      verdict = 'Materially exposed'; color = 'var(--orange)';
+      text = 'Customer PII is being decrypted routinely, and is probably visible to more people and processes than anyone has counted. This is the common position, not an unusual one — but under DPDP it is now a liability rather than a design choice. Every processing surface counts once, and the aggregate is what a regulator will assess.';
     }
 
-    finalVerdict=verdict;
-    pxTrack('quiz_complete',{score:score,verdict:verdict});
-    document.getElementById('verdict').textContent=verdict;
-    document.getElementById('verdict').style.color=color;
-    var fill=document.getElementById('meterFill');
-    fill.style.background=color;
-    setTimeout(function(){fill.style.width=Math.max(pct,6)+'%';},120);
-    document.getElementById('rtext').textContent=text;
+    finalVerdict = verdict;
+    pxTrack('quiz_complete',{score:finalScore, verdict:verdict});
+    document.getElementById('scoreNum').textContent = finalScore + ' / 100';
+    document.getElementById('verdict').textContent = verdict;
+    document.getElementById('verdict').style.color = color;
+    var fill = document.getElementById('meterFill');
+    fill.style.background = color;
+    setTimeout(function(){ fill.style.width = Math.max(finalScore, 6) + '%'; }, 120);
+    document.getElementById('rtext').textContent = text;
 
-    var seen={}, box=document.getElementById('flags');
-    box.innerHTML='';
-    hits.forEach(function(f){
-      if(seen[f])return; seen[f]=1;
-      var d=document.createElement('div');
-      d.className='flag';
-      d.innerHTML='<span>▲</span><div>'+f+'</div>';
-      box.appendChild(d);
+    // Build a friendly "picked" string for the CRM/email
+    picked = [];
+    var recordsLbl = document.querySelector('#partA .opts[data-qid=records] .opt.selected');
+    var systemsLbl = document.querySelector('#partA .opts[data-qid=systems] .opt.selected');
+    picked.push('Records: '   + (recordsLbl ? recordsLbl.childNodes[0].textContent.trim() : '—'));
+    picked.push('Systems: '   + (systemsLbl ? systemsLbl.childNodes[0].textContent.trim() : '—'));
+    var dataTypes = [];
+    document.querySelectorAll('#partA .opts[data-qid=datatypes] .opt.selected').forEach(function(b){ dataTypes.push(b.textContent.trim()); });
+    picked.push('Data types (' + dataTypes.length + '): ' + (dataTypes.join(', ') || 'none'));
+    ['onboarding','mdm','aml','cdd','analytics'].forEach(function(k){
+      var row = document.querySelector('.matrix-row[data-qid=' + k + ']');
+      var lbl = row.querySelector('.matrix-label').textContent.trim();
+      var cell = row.querySelector('.mcell.selected');
+      var freq = cell ? (['Never','Sometimes','Frequently','Always'])[Array.prototype.indexOf.call(row.querySelectorAll('.mcell'), cell)] : '—';
+      picked.push(lbl + ': ' + freq);
     });
+    var exposureItems = [];
+    document.querySelectorAll('#partB2 .opt.selected').forEach(function(b){ exposureItems.push(b.textContent.trim()); });
+    picked.push('Exposure statements (' + exposureItems.length + '): ' + (exposureItems.join('; ') || 'none'));
+
+    window.scrollTo({top: result.getBoundingClientRect().top + window.scrollY - 80, behavior:'smooth'});
   }
 
-  /* ══ CAPTURE — post to Google Form ══ */
-  var capture=document.getElementById('capture'),
-      thanks=document.getElementById('thanks'),
-      cErr=document.getElementById('cErr'),
-      cSend=document.getElementById('cSend');
+  /* ══ CAPTURE — post to Vercel lead endpoint ══ */
+  var capture = document.getElementById('capture'),
+      thanks  = document.getElementById('thanks'),
+      cErr    = document.getElementById('cErr'),
+      cSend   = document.getElementById('cSend');
 
   function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
 
-  cSend.addEventListener('click',function(){
-    var email=document.getElementById('cEmail').value.trim(),
-        name =document.getElementById('cName').value.trim(),
-        org  =document.getElementById('cOrg').value.trim();
+  cSend.addEventListener('click', function(){
+    var email = document.getElementById('cEmail').value.trim(),
+        name  = document.getElementById('cName').value.trim(),
+        org   = document.getElementById('cOrg').value.trim();
 
     if(!validEmail(email)){ cErr.classList.add('show'); return; }
     cErr.classList.remove('show');
-    cSend.disabled=true;
-    cSend.textContent='Sending…';
+    cSend.disabled = true;
+    cSend.textContent = 'Sending…';
 
     var payload = {
       email:   email,
       name:    name || '',
       org:     org  || '',
-      score:   score + ' / 15',
+      score:   finalScore + ' / 100',
       verdict: finalVerdict,
       answers: picked.join('  |  '),
-      hp:      document.getElementById('cWebsite').value   // honeypot
+      campaign:'zero-data-exposure-assessment',
+      hp:      document.getElementById('cWebsite').value
     };
 
-    function done(){
-      capture.style.display='none';
-      thanks.classList.add('show');
-    }
+    function done(){ capture.style.display='none'; thanks.classList.add('show'); }
 
     function fallbackToEmail(){
-      window.location.href='mailto:'+FALLBACK_EMAIL
-        +'?subject='+encodeURIComponent('PII exposure check — '+finalVerdict+' ('+score+'/15)')
-        +'&body='+encodeURIComponent(
-            'Name: '+(name||'—')+'\nOrganization: '+(org||'—')+'\nEmail: '+email
-            +'\n\nScore: '+score+' / 15\nVerdict: '+finalVerdict
-            +'\n\n'+picked.join('\n'));
+      window.location.href = 'mailto:' + FALLBACK_EMAIL
+        + '?subject=' + encodeURIComponent('Zero-Data-Exposure assessment — ' + finalVerdict + ' (' + finalScore + '/100)')
+        + '&body='   + encodeURIComponent(
+            'Name: ' + (name||'—') + '\nOrganization: ' + (org||'—') + '\nEmail: ' + email
+            + '\n\nScore: ' + finalScore + ' / 100\nVerdict: ' + finalVerdict
+            + '\n\n' + picked.join('\n'));
       done();
     }
 
-    fetch(LEAD_ENDPOINT,{
+    fetch(LEAD_ENDPOINT, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(payload)
     })
-    .then(function(r){
-      if(r.ok){ done(); }
-      else { fallbackToEmail(); }
-    })
+    .then(function(r){ if(r.ok){ done(); } else { fallbackToEmail(); } })
     .catch(fallbackToEmail);
   });
 
-  document.getElementById('cEmail').addEventListener('keydown',function(e){
-    if(e.key==='Enter')cSend.click();
+  document.getElementById('cEmail').addEventListener('keydown', function(e){
+    if(e.key === 'Enter') cSend.click();
   });
 
-  document.getElementById('again').addEventListener('click',function(){
-    idx=0;score=0;hits=[];picked=[];finalVerdict='';
+  document.getElementById('again').addEventListener('click', function(){
+    Object.keys(scores).forEach(function(k){
+      scores[k] = (k === 'onboarding'||k==='mdm'||k==='aml'||k==='cdd'||k==='analytics') ? null : 0;
+    });
+    picked = []; finalVerdict = ''; finalScore = 0;
+    document.querySelectorAll('.opt.selected, .mcell.selected').forEach(function(el){ el.classList.remove('selected'); });
     result.classList.remove('show');
-    qbody.style.display='block';
-    document.getElementById('meterFill').style.width='0';
-    capture.style.display='';
+    partB1.classList.remove('active');
+    partB2.classList.remove('active');
+    partA.classList.add('active');
+    setStage(0);
+    document.getElementById('meterFill').style.width = '0';
+    capture.style.display = '';
     thanks.classList.remove('show');
-    cSend.disabled=false;
-    cSend.textContent='Email me my results';
+    cSend.disabled = false;
+    cSend.textContent = 'Email me my results';
     cErr.classList.remove('show');
-    render();
+    updateGateButtons();
+    window.scrollTo({top: partA.getBoundingClientRect().top + window.scrollY - 80, behavior:'smooth'});
+    started = false;
   });
-
-  render();
 })();
 </script>
 
